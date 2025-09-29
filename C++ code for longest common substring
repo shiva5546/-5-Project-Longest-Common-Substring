@@ -1,0 +1,68 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+/*
+  Longest Common Substring (DP)
+  DP[i][j] = length of the longest common suffix of s1[:i] and s2[:j]
+  We print the DP grid (without the 0th row/col) and one winning substring.
+*/
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    string s1, s2;
+    // Read two tokens; assumes no spaces inside the strings.
+    if (!(cin >> s1 >> s2)) {
+        cerr << "Error: please provide two input strings on stdin.\n";
+        return 1;
+    }
+
+    const int m = (int)s1.size();
+    const int n = (int)s2.size();
+
+    // DP table with an extra leading row/col of zeros
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+    int bestLen = 0;
+    int bestEndInS1 = 0;  // end position (1-based for dp, 0-based for substr slicing)
+
+    for (int i = 1; i <= m; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            if (s1[i - 1] == s2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+                if (dp[i][j] > bestLen) {
+                    bestLen = dp[i][j];
+                    bestEndInS1 = i;
+                }
+            } else {
+                dp[i][j] = 0;
+            }
+        }
+    }
+
+    // Extract one winner (if multiple exist, we just show the first found)
+    string winner = s1.substr(bestEndInS1 - bestLen, bestLen);
+
+    // Pretty-print the DP lookup table with headers
+    cout << "DP lookup table (rows = s1, cols = s2):\n";
+
+    // Top header: blank corner + s2 characters
+    cout << "    "; // space for left header
+    for (char c : s2) cout << setw(3) << c;
+    cout << "\n";
+
+    for (int i = 1; i <= m; ++i) {
+        // Left header: s1 character for this row
+        cout << " " << s1[i - 1] << "  ";
+        for (int j = 1; j <= n; ++j) {
+            cout << setw(3) << dp[i][j];
+        }
+        cout << "\n";
+    }
+
+    cout << "\nLongest Common Substring length: " << bestLen << "\n";
+    cout << "One winner: \"" << winner << "\"\n";
+
+    return 0;
+}
